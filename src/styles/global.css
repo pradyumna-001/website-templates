@@ -1158,3 +1158,260 @@ body {
   color: var(--color-muted);
   font-size: 0.8rem;
 }
+/* ------------------------------------------------------------------ *\
+  Contact
+\* ------------------------------------------------------------------ */
+
+/* Contact details are laid out up front and always visible (Krug: contact as a
+   reservoir of goodwill). A two-column block keeps the details on the left and
+   the FAQ accordion beside them on wider screens; it stacks on narrow ones. */
+.contact {
+  padding: var(--space-8) var(--space-4);
+  max-width: 68rem;
+  margin: 0 auto;
+}
+
+.contact__heading {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--space-2);
+}
+
+.contact__lede {
+  color: var(--color-muted);
+  margin: 0 0 var(--space-8);
+}
+
+.contact__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--space-8);
+  align-items: start;
+}
+
+.contact__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.contact__address {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.contact__address strong {
+  color: var(--color-fg);
+}
+
+.contact__subheading {
+  margin: 0 0 var(--space-3);
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+}
+
+.contact__hours-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact__hours-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-surface);
+}
+
+.contact__day {
+  color: var(--color-fg);
+  font-weight: var(--font-weight-medium);
+}
+
+.contact__time {
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.contact__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.contact__link {
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+}
+
+.contact__link:hover,
+.contact__link:focus-visible {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------ *\
+  FAQ accordion
+\* ------------------------------------------------------------------ */
+
+/* Questions answered as a conversation (Norman: useful, direct answers beat a
+   wall). Rows sit in a bordered list; the question button fills its row and a
+   chevron rotates open/closed so the collapsed state is self-explanatory. */
+.faq {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.faq__heading {
+  margin: 0 0 var(--space-1);
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+}
+
+.faq__row {
+  border-bottom: 1px solid var(--color-surface);
+}
+
+.faq__question {
+  margin: 0;
+}
+
+.faq__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-4) 0;
+  background: none;
+  border: none;
+  color: var(--color-fg);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  cursor: pointer;
+}
+
+.faq__toggle:hover,
+.faq__toggle:focus-visible {
+  color: var(--color-accent);
+}
+
+.faq__toggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.faq__chevron {
+  flex-shrink: 0;
+  color: var(--color-accent);
+  transition: transform 0.15s ease;
+}
+
+/* Point the chevron up when the row is open. */
+.faq__toggle[aria-expanded='true'] .faq__chevron {
+  transform: rotate(180deg);
+}
+
+.faq__answer {
+  color: var(--color-muted);
+  padding: 0 0 var(--space-4);
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------------------ *\
+  Footer
+\* ------------------------------------------------------------------ */
+
+/* Persistent residual nav (Krug) plus always-visible contact: the footer
+   appears beneath every page so contact and the utility links are never a
+   dead end. Muted but legible, with the residual links sharing the primary nav
+   routes so a visitor at the bottom of any page can keep moving. */
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-top: var(--space-12);
+  padding: var(--space-8) var(--space-4) var(--space-12);
+  border-top: 1px solid var(--color-surface);
+}
+
+.footer__col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.footer__name {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+}
+
+.footer__address {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.footer__social {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-2);
+}
+
+.footer__link {
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  font-size: 0.9rem;
+}
+
+.footer__link:hover,
+.footer__link:focus-visible {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.footer__whatsapp {
+  font-size: 0.9rem;
+  padding: var(--space-2) var(--space-3);
+}
+
+.footer__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.footer__nav-link {
+  color: var(--color-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.footer__nav-link:hover,
+.footer__nav-link:focus-visible {
+  color: var(--color-accent);
+}
+
+.footer__copyright {
+  width: 100%;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
