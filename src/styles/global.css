@@ -178,3 +178,72 @@ body {
   justify-content: center;
   margin-top: var(--space-6);
 }
+
+/* ------------------------------------------------------------------ *\
+  Home / Hero
+\* ------------------------------------------------------------------ */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+}
+
+.hero__title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.hero__tagline {
+  color: var(--color-accent);
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.hero__value {
+  color: var(--color-fg);
+  font-size: 1.125rem;
+  max-width: 42rem;
+  margin: 0;
+}
+
+.hero__cta-row {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: var(--space-4);
+}
+
+.hero__shortcuts {
+  display: flex;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: var(--space-4);
+}
+
+.hero__shortcut {
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  padding: var(--space-2) var(--space-3);
+}
+
+.hero__shortcut:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.hero__promise {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  max-width: 36rem;
+  margin: var(--space-4) 0 0;
+}
