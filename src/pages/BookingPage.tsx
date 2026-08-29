@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { STYLE_LABELS, type StyleCategory } from '../types/studio'
 import { useSiteConfig } from '../components/SiteConfigContext'
+import CtaButton from '../components/CtaButton'
 
 /**
  * Controlled, WhatsApp-first booking form (GitHub issue #13).
@@ -27,14 +28,29 @@ import { useSiteConfig } from '../components/SiteConfigContext'
  *
  * The form runs as a small state machine — `editing` -> `review`. Submitting a
  * validated form moves to a review step that shows everything the user entered
- * as a confirmable summary object (`readyToSend`). Sending that summary on
- * WhatsApp itself is issue #14; this step only holds the summary ready.
+ * as a confirmable summary object. A visible 1-2-3 step indicator
+ * ("Details -> Review -> Send on WhatsApp") gives the user the whole pipeline
+ * before they start (Norman: a conceptual model), with the current step kept
+ * highlighted.
+ *
+ * The review step surfaces the object of the action before the trigger
+ * (Norman): a salient confirm line like `Confirm appointment: "Blackwork
+ * dragon" with Maria on Sat 14 Aug.` sits directly above the send control.
+ * That send control is a real link to `https://wa.me/<number>?text=<encoded>`
+ * built from the confirmed state, so WhatsApp opens with a complete,
+ * ready-to-send booking message (Stefanov: link-as-button CTA). Sending shows
+ * immediate feedback and is locked while pending to prevent a double trigger.
+ * Once the link is used, the saved draft is cleared and the user returns to a
+ * fresh step 1 with a success note.
  */
 
 /** Constants. All copy is English on purpose. */
 const DRAFT_KEY = 'booking-form-draft'
 const ANY_ARTIST = 'any'
 const PLACEMENTS = ['Arm', 'Leg', 'Back', 'Chest', 'Hand', 'Neck', 'Other'] as const
+
+/** The visible 1-2-3 conceptual model (Norman): the whole pipeline up front. */
+const STEPS_LABELS = ['Details', 'Review', 'Send on WhatsApp']
 
 /** Shape of a single controlled form value. `deposit` drives the checkbox. */
 interface BookingFormState {
@@ -85,6 +101,50 @@ function makeDefaultState(): BookingFormState {
   }
 }
 
+/** Parse an ISO `YYYY-MM-DD` value into a local Date, or null if invalid. */
+function toLocalDate(iso: string): Date | null {
+  if (!iso) return null
+  const date = new Date(`${iso}T00:00:00`)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+/** Long, friendly English date: "Sat, Aug 14, 2026". */
+function formatFriendlyDate(iso: string): string {
+  const date = toLocalDate(iso)
+  if (!date) return iso
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+/** Short confirm-line English date: "Sat, Aug 14". */
+function formatShortDate(iso: string): string {
+  const date = toLocalDate(iso)
+  if (!date) return iso
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  })
+}
+
+/** Compose the fully prefilled WhatsApp message from the confirmed booking. */
+function buildWhatsAppMessage(r: ReadyToSend, studioName: string): string {
+  const deposit = r.depositAcknowledged ? 'accepted' : 'to confirm'
+  return [
+    `Hello ${studioName}! I would like to book a tattoo.`,
+    `Name: ${r.name}`,
+    `Style: ${STYLE_LABELS[r.style]}`,
+    `Placement: ${r.placement}`,
+    `Artist: ${r.artistName}`,
+    `Preferred date: ${formatFriendlyDate(r.date)}`,
+    `Deposit: ${deposit}`,
+  ].join('\n')
+}
+
 /** Restore a saved draft if one exists; otherwise start from the defaults. */
 function loadDraft(): BookingFormState {
   try {
@@ -131,12 +191,23 @@ function validateField(
 }
 
 export default function BookingPage() {
-  const { artists } = useSiteConfig()
+  const { artists, studioName, whatsapp } = useSiteConfig()
 
   const [form, setForm] = useState<BookingFormState>(loadDraft)
   const [touched, setTouched] = useState<Touched>({})
   const [stage, setStage] = useState<Stage>('editing')
   const [readyToSend, setReadyToSend] = useState<ReadyToSend | null>(null)
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const sendTimer = useRef<number | undefined>(undefined)
+
+  // Clear the pending-send timer if the user leaves mid-send.
+  useEffect(
+    () => () => {
+      if (sendTimer.current !== undefined) window.clearTimeout(sendTimer.current)
+    },
+    [],
+  )
 
   // Persist the draft as the user types so an interrupted booking can resume.
   // Runs on every form change; reading the latest values via the updater keeps
@@ -211,24 +282,53 @@ export default function BookingPage() {
     setStage('editing')
   }, [])
 
+  // The prefilled WhatsApp message + link, derived from the confirmed booking.
+  const waMessage = useMemo(
+    () => (readyToSend ? buildWhatsAppMessage(readyToSend, studioName) : ''),
+    [readyToSend, studioName],
+  )
+  const waLink = useMemo(
+    () =>
+      whatsapp !== '' && waMessage !== ''
+        ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(waMessage)}`
+        : '',
+    [whatsapp, waMessage],
+  )
+
+  // Normans's "confirm the action + object": the salient line right above the
+  // send button names exactly what opening WhatsApp will carry.
+  const confirmLine = useMemo(() => {
+    if (!readyToSend) return ''
+    return `Confirm appointment: "${STYLE_LABELS[readyToSend.style]}" with ${readyToSend.artistName} on ${formatShortDate(readyToSend.date)}.`
+  }, [readyToSend])
+
   /**
-   * "Send" clears the saved draft (a confirmed booking should not resurrect
-   * later) and returns to a fresh editing form. The actual WhatsApp send is
-   * wired in issue #14; this is the draft-clearing hand-off point.
+   * "Send on WhatsApp" is a plain link, so the "send" itself is WhatsApp
+   * opening in a new tab. We simulate a short pending state to give immediate
+   * feedback and to lock the control against a double trigger. When the delay
+   * resolves, the confirmed draft is cleared and the form resets to a fresh
+   * step 1 with a success note for a possible resend.
    */
-  const onConfirmDone = useCallback(() => {
-    try {
-      window.localStorage.removeItem(DRAFT_KEY)
-    } catch {
-      // Best-effort clear; nothing else to do.
-    }
-    setForm(makeDefaultState())
-    setTouched({})
-    setReadyToSend(null)
-    setStage('editing')
-  }, [])
+  const onSendViaWhatsApp = useCallback(() => {
+    if (sending) return
+    setSending(true)
+    sendTimer.current = window.setTimeout(() => {
+      try {
+        window.localStorage.removeItem(DRAFT_KEY)
+      } catch {
+        // Best-effort clear; nothing else to do.
+      }
+      setForm(makeDefaultState())
+      setTouched({})
+      setReadyToSend(null)
+      setSent(true)
+      setSending(false)
+      setStage('editing')
+    }, 1500)
+  }, [sending])
 
   const minDate = todayISO()
+  const currentStep = stage === 'editing' ? 1 : sending ? 3 : 2
 
   return (
     <section className="booking">
@@ -237,6 +337,32 @@ export default function BookingPage() {
         Tell us about the piece you have in mind. Your answers are saved as you
         go, so nothing is lost if you step away.
       </p>
+
+      <ol
+        className="booking__steps"
+        aria-label="Booking progress: details, review, then send on WhatsApp"
+      >
+        {STEPS_LABELS.map((label, index) => {
+          const step = index + 1
+          const current = step === currentStep
+          return (
+            <li
+              key={label}
+              className={current ? 'booking__step booking__step--current' : 'booking__step'}
+              aria-current={current ? 'step' : undefined}
+            >
+              <span className="booking__step-num">{step}</span>
+              <span className="booking__step-label">{label}</span>
+            </li>
+          )
+        })}
+      </ol>
+
+      {sent && (
+        <p className="booking__success" role="status" aria-live="polite">
+          Your booking is ready in WhatsApp — we&apos;ll confirm shortly.
+        </p>
+      )}
 
       {stage === 'editing' ? (
         <form className="booking__form" onSubmit={onSubmit} noValidate>
@@ -366,21 +492,38 @@ export default function BookingPage() {
                 </dd>
               </div>
             </dl>
+            <p className="booking__confirm">{confirmLine}</p>
             <p className="booking__review-note">
-              Sending this request over WhatsApp is provided in the next step.
+              Step 3 of 3: the Send button opens WhatsApp in a new tab with this
+              request already written out. Review it there and hit send.
             </p>
             <div className="booking__review-actions">
-              <button type="button" className="cta cta--primary" onClick={onConfirmDone}>
-                Submit booking
-              </button>
+              <CtaButton
+                href={waLink}
+                variant="whatsapp"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={onSendViaWhatsApp}
+                aria-disabled={sending}
+                aria-busy={sending}
+                className="booking__send"
+              >
+                {sending ? 'Opening WhatsApp…' : 'Send on WhatsApp'}
+              </CtaButton>
               <button
                 type="button"
                 className="cta booking__review-back"
                 onClick={onEditAgain}
+                disabled={sending}
               >
                 Edit details
               </button>
             </div>
+            {sending && (
+              <p className="booking__review-note" role="status" aria-live="assertive">
+                Opening WhatsApp in a new tab…
+              </p>
+            )}
           </div>
         )
       )}
