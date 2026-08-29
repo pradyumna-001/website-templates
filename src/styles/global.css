@@ -660,6 +660,136 @@ body {
 }
 
 /* ------------------------------------------------------------------ *\
+  Artists index
+\* ------------------------------------------------------------------ */
+
+.artists {
+  padding: var(--space-8) var(--space-4);
+  max-width: 68rem;
+  margin: 0 auto;
+}
+
+.artists__heading {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--space-2);
+}
+
+.artists__lede {
+  color: var(--color-muted);
+  margin: 0 0 var(--space-6);
+}
+
+.artists__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: var(--space-6);
+}
+
+.artists__empty {
+  color: var(--color-muted);
+}
+
+/* Artist card: a credibility tile (people want a good tattoo, so prove the
+   artists). Photo or monogram up top, then name, bio, style pills, and a clear
+   "View work" affordance that maps naturally to the artist's own portfolio
+   (Norman: mapping between an artist and their work). */
+.artist-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: transform 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.artist-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-accent);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.artist-card__photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background-color: var(--color-bg);
+}
+
+.artist-card__monogram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-bg)
+  );
+  color: var(--color-fg);
+  font-size: 3rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+}
+
+.artist-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  text-align: left;
+}
+
+.artist-card__name {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+}
+
+.artist-card__bio {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.artist-card__styles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.artist-card__style {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.artist-card__link {
+  margin-top: var(--space-2);
+  align-self: flex-start;
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+}
+
+.artist-card__link:hover,
+.artist-card__link:focus-visible {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------ *\
   Home / Hero
 \* ------------------------------------------------------------------ */
 
