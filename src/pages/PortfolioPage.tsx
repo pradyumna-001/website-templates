@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
-import { STYLE_LABELS, type StyleCategory } from '../types/studio'
+import { useCallback, useMemo, useState } from 'react'
+import { STYLE_LABELS, type PortfolioItem, type StyleCategory } from '../types/studio'
 import { useSiteConfig } from '../components/SiteConfigContext'
 import TattooCard from '../components/TattooCard'
+import Lightbox from '../components/Lightbox'
 
 /**
  * Config-driven gallery.
@@ -31,14 +32,34 @@ const styleFilters: StyleFilter[] = [
 export default function PortfolioPage() {
   const { portfolio } = useSiteConfig()
   const [active, setActive] = useState<StyleFilter>('all')
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
   const visible = useMemo(() => {
     if (active === 'all') return portfolio
     return portfolio.filter((item) => item.style === active)
   }, [portfolio, active])
 
+  const openFrom = useCallback((item: PortfolioItem) => {
+    setLightboxIndex(visible.findIndex((p) => p.id === item.id))
+  }, [visible])
+
+  const closeLightbox = useCallback(() => setLightboxIndex(null), [])
+
+  const navigateLightbox = useCallback(
+    (delta: number) => {
+      setLightboxIndex((current) => {
+        if (current === null) return current
+        const next = current + delta
+        if (next < 0 || next >= visible.length) return current
+        return next
+      })
+    },
+    [visible.length],
+  )
+
   return (
-    <section className="gallery">
+    <>
+      <section className="gallery">
       <h1 className="gallery__heading">Portfolio</h1>
       <p className="gallery__lede">
         Browse recent pieces from our artists. Filter by style.
@@ -74,9 +95,7 @@ export default function PortfolioPage() {
             <TattooCard
               key={item.id}
               item={item}
-              onOpen={(piece) =>
-                console.log('[tattoo-card] open piece', piece.id)
-              }
+              onOpen={openFrom}
             />
           ))}
         </div>
@@ -84,5 +103,13 @@ export default function PortfolioPage() {
         <p className="gallery__empty">No pieces in this style yet.</p>
       )}
     </section>
+
+    <Lightbox
+      items={visible}
+      index={lightboxIndex}
+      onClose={closeLightbox}
+      onNavigate={navigateLightbox}
+    />
+    </>
   )
 }
