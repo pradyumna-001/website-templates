@@ -73,6 +73,13 @@ body {
   border-bottom: 1px solid var(--color-surface);
 }
 
+/* Groups the brand + mobile toggle so the toggle can sit beside the logo on
+   small screens while desktop keeps everything in one row. */
+.navbar__bar {
+  display: contents;
+  margin-right: auto;
+}
+
 .navbar__brand {
   display: flex;
   align-items: baseline;
@@ -134,6 +141,34 @@ body {
 .navbar__city {
   color: var(--color-muted);
   font-size: 0.875rem;
+}
+
+/* Mobile menu toggle: hidden on desktop, shown next to the logo on small
+   screens. Uses the English "Menu" label so the control needs no icon glyphs,
+   and speaks its state to assistive tech via aria-expanded. */
+.navbar__toggle {
+  display: none;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-surface);
+  background: none;
+  color: var(--color-fg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.navbar__toggle:hover,
+.navbar__toggle:focus-visible {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.navbar__toggle[aria-expanded='true']::after {
+  content: ' \2715';
 }
 
 /* ------------------------------------------------------------------ *\
@@ -1414,4 +1449,83 @@ body {
   margin: 0;
   color: var(--color-muted);
   font-size: 0.8125rem;
+}
+
+/* ------------------------------------------------------------------ *\
+  Mobile
+\* ------------------------------------------------------------------ */
+
+/* Mobile-first collapse (Krug, "Don't Make Me Think": prioritize what someone
+   uses in a hurry). On narrow screens the navbar stacks — brand + a "Menu"
+   toggle on top, then the link list, then the always-visible WhatsApp booking
+   action so a primary action is never more than one tap away. */
+@media (max-width: 48rem) {
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding: var(--space-4) 0;
+  }
+
+  .navbar__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .navbar__brand {
+    margin-right: 0;
+  }
+
+  .navbar__toggle {
+    display: inline-flex;
+  }
+
+  .navbar__nav {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-1);
+  }
+
+  .navbar__nav--open {
+    display: flex;
+  }
+
+  .navbar__nav .navbar__link {
+    padding: var(--space-3);
+    border-radius: var(--radius-sm);
+  }
+
+  .navbar__actions {
+    margin-left: 0;
+  }
+
+  /* Keep the hero CTAs on the first screen: a tighter, vertically centered
+     hero so "Book a Tattoo" and WhatsApp are reachable on a ~375px viewport
+     without excessive scrolling, while the buttons stay large and tappable. */
+  .hero {
+    justify-content: center;
+    min-height: 70vh;
+    padding: var(--space-8) var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .hero__title {
+    font-size: clamp(2rem, 9vw, 2.75rem);
+  }
+
+  .hero__value {
+    font-size: 1rem;
+  }
+
+  .hero__cta-row {
+    gap: var(--space-3);
+  }
+
+  .hero__cta-row .cta {
+    flex: 1 1 auto;
+    min-width: min(100%, 15rem);
+  }
 }
