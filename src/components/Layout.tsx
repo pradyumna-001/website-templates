@@ -1,24 +1,11 @@
-import { Link, Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import { siteConfig } from '../config/site'
-import { useSiteConfig } from './SiteConfigContext'
+import Navbar from './Navbar'
 
 export default function Layout() {
-  const { studioName } = useSiteConfig()
-
   return (
     <div>
-      <header>
-        <nav>
-          <Link to="/">{studioName}</Link>
-          <ul>
-            {siteConfig.nav.map((item) => (
-              <li key={item.path}>
-                <Link to={item.path}>{item.label}</Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </header>
+      <Navbar />
       <main>
         <Outlet />
       </main>
