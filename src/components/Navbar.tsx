@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { useSiteConfig } from './SiteConfigContext'
 import CtaButton from './CtaButton'
@@ -19,6 +20,8 @@ const NAV_ITEMS = [
  */
 export default function Navbar() {
   const { studioName, tagline, whatsapp, city } = useSiteConfig()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const closeMenu = () => setMenuOpen(false)
 
   const waMessage = encodeURIComponent(
     `Hello ${studioName}! I would like to book an appointment.`,
@@ -27,14 +30,32 @@ export default function Navbar() {
 
   return (
     <header className="navbar">
-      <div className="navbar__brand">
-        <Link to="/" className="navbar__logo">
-          {studioName}
-        </Link>
-        {tagline ? <span className="navbar__tagline">{tagline}</span> : null}
+      <div className="navbar__bar">
+        <div className="navbar__brand">
+          <Link to="/" className="navbar__logo" onClick={closeMenu}>
+            {studioName}
+          </Link>
+          {tagline ? <span className="navbar__tagline">{tagline}</span> : null}
+        </div>
+
+        <button
+          type="button"
+          className="navbar__toggle"
+          aria-expanded={menuOpen}
+          aria-controls="navbar-nav"
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          Menu
+        </button>
       </div>
 
-      <nav className="navbar__nav" aria-label="Primary">
+      <nav
+        id="navbar-nav"
+        className={['navbar__nav', menuOpen ? 'navbar__nav--open' : null]
+          .filter(Boolean)
+          .join(' ')}
+        aria-label="Primary"
+      >
         {NAV_ITEMS.map((item) => (
           <NavLink
             key={item.path}
@@ -44,6 +65,7 @@ export default function Navbar() {
                 .filter(Boolean)
                 .join(' ')
             }
+            onClick={closeMenu}
           >
             {item.label}
           </NavLink>
