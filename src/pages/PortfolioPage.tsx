@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { STYLE_LABELS, type StyleCategory } from '../types/studio'
 import { useSiteConfig } from '../components/SiteConfigContext'
-import PortfolioCard from '../components/PortfolioCard'
+import TattooCard from '../components/TattooCard'
 
 /**
  * Config-driven gallery.
@@ -71,7 +71,13 @@ export default function PortfolioPage() {
       {visible.length > 0 ? (
         <div className="gallery__grid">
           {visible.map((item) => (
-            <PortfolioCard key={item.id} item={item} />
+            <TattooCard
+              key={item.id}
+              item={item}
+              onOpen={(piece) =>
+                console.log('[tattoo-card] open piece', piece.id)
+              }
+            />
           ))}
         </div>
       ) : (
