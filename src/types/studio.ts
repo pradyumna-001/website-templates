@@ -117,3 +117,42 @@ export interface StudioConfig {
   faq?: FaqItem[]
   theme?: ThemeTokens
 }
+
+/* ------------------------------------------------------------------ *\
+  Label maps via `as const` + `keyof typeof`
+\* ------------------------------------------------------------------ */
+
+/**
+ * Canonical source of style labels. Keeping a single const object and deriving
+ * both the label map and the union from it guarantees the labels and the
+ * `StyleCategory` union can never drift apart.
+ */
+export const STYLES = {
+  traditional: 'Traditional',
+  'neo-traditional': 'Neo-Traditional',
+  realism: 'Realism',
+  blackwork: 'Blackwork',
+  color: 'Color',
+  tribal: 'Tribal',
+  lettering: 'Lettering',
+  minimal: 'Minimal',
+} as const
+
+/**
+ * Display label for a style category, matching the `StyleCategory` union by
+ * construction. Derived from `STYLES` via `keyof typeof`.
+ */
+export type StyleLabel = (typeof STYLES)[keyof typeof STYLES]
+
+/** Map from each `StyleCategory` to its display label. */
+export const STYLE_LABELS: Record<StyleCategory, string> = STYLES
+
+export const BOOKING_TYPES = {
+  tattoo: 'Tattoo',
+  piercing: 'Piercing',
+  consultation: 'Consultation',
+} as const
+
+export type BookingLabel = (typeof BOOKING_TYPES)[keyof typeof BOOKING_TYPES]
+
+export const BOOKING_LABELS: Record<BookingType, string> = BOOKING_TYPES
