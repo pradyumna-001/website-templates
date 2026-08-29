@@ -133,6 +133,7 @@ export default function Lightbox({
               className="lbx__image"
               src={item.image}
               alt={alt}
+              decoding="async"
               onLoad={() => setLoading(false)}
               onError={() => setLoading(false)}
             />

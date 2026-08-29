@@ -60,6 +60,7 @@ export default function TattooCard({ item, onOpen }: TattooCardProps) {
           src={item.image}
           alt={alt}
           loading="lazy"
+          decoding="async"
           width={600}
           height={600}
         />

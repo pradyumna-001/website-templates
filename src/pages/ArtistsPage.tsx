@@ -32,6 +32,10 @@ function ArtistCard({ artist }: { artist: Artist }) {
           className="artist-card__photo"
           src={artist.photo}
           alt={artist.name}
+          loading="lazy"
+          decoding="async"
+          width={640}
+          height={480}
         />
       ) : (
         <div
