@@ -1,0 +1,61 @@
+/**
+ * Global design tokens.
+ *
+ * Dark-first: the palette default is a near-black background with light text so
+ * there is strong contrast and legibility out of the box, matching the
+ * accessibility-first intent of the reference design system. The accent tokens
+ * are overridden at runtime from the studio config theme (see
+ * `SiteConfigProvider`).
+ *
+ * Token groups:
+ * - `--color-*`  : color palette (bg, surface, fg, muted, primary, accent, link)
+ * - `--space-*`  : spacing scale
+ * - `--radius-*` : corner radii
+ * - `--font-*`   : typeface stacks and weights
+ */
+:root {
+  /* Color palette — dark first */
+  --color-bg: #0c0c10;
+  --color-surface: #16161d;
+  --color-fg: #f4f1ea;
+  --color-muted: #9aa0a6;
+  --color-primary: #ff6b3d;
+  --color-accent: #ff6b3d;
+  --color-link: #7cc5ff;
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* Typography */
+  --font-sans: system-ui, Arial, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
