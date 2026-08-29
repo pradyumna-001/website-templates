@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { STYLE_LABELS, type PortfolioItem, type StyleCategory } from '../types/studio'
 import { useSiteConfig } from '../components/SiteConfigContext'
 import TattooCard from '../components/TattooCard'
@@ -38,8 +39,22 @@ const ALL = 'all'
 
 export default function PortfolioPage() {
   const { portfolio, artists } = useSiteConfig()
+
+  /**
+   * Natural mapping from an artist card to their own work: a deep link
+   * "/portfolio?artist=<id>" pre-selects that artist in the filter. The id is
+   * validated against the configured artists so an unknown id safely resets to
+   * "All" instead of showing an empty grid that looks like a bug.
+   */
+  const [searchParams] = useSearchParams()
+  const paramArtist = searchParams.get('artist')
+  const initialArtist: ArtistFilter =
+    paramArtist !== null && artists.some((a) => a.id === paramArtist)
+      ? paramArtist
+      : ALL
+
   const [activeStyle, setActiveStyle] = useState<StyleFilter>('all')
-  const [activeArtist, setActiveArtist] = useState<ArtistFilter>('all')
+  const [activeArtist, setActiveArtist] = useState<ArtistFilter>(initialArtist)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
   const visible = useMemo(() => {
