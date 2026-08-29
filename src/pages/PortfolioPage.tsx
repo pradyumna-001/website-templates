@@ -9,13 +9,18 @@ import Lightbox from '../components/Lightbox'
  *
  * The whole grid is derived purely from `useSiteConfig().portfolio` (Stefanov,
  * "React Up & Running": one source of truth, no hard-coded markup). Filtering
- * is driven by the same `StyleCategory` literal union the config uses
- * (Goldberg, "Learning TypeScript"): the active selection is typed as
- * `StyleCategory | "all"`, guarantee-filled, and each filter button is derived
- * from the canonical `STYLE_LABELS` map so labels can never drift from the
- * union. Gallery items are keyed by `item.id` for stable reconciliation.
+ * is driven by the same literal unions the config uses (Goldberg, "Learning
+ * TypeScript"): the active selections are typed as `StyleCategory | "all"` and
+ * `ArtistId | "all"`, guarantee-filled, and each filter button is derived from
+ * the canonical `STYLE_LABELS` map (styles) or `useSiteConfig().artists`
+ * (artists) so labels can never drift from the data. Both filters act with
+ * logical AND since they control the same grid, which is why they are laid out
+ * as one visually adjacent group sitting directly above the grid (Norman,
+ * "The Design of Everyday Things": controls are grouped with what they
+ * control). Gallery items are keyed by `item.id` for stable reconciliation.
  */
 type StyleFilter = StyleCategory | 'all'
+type ArtistFilter = string | 'all'
 
 const styleFilters: StyleFilter[] = [
   'all',
@@ -29,15 +34,25 @@ const styleFilters: StyleFilter[] = [
   'minimal',
 ]
 
+const ALL = 'all'
+
 export default function PortfolioPage() {
-  const { portfolio } = useSiteConfig()
-  const [active, setActive] = useState<StyleFilter>('all')
+  const { portfolio, artists } = useSiteConfig()
+  const [activeStyle, setActiveStyle] = useState<StyleFilter>('all')
+  const [activeArtist, setActiveArtist] = useState<ArtistFilter>('all')
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
   const visible = useMemo(() => {
-    if (active === 'all') return portfolio
-    return portfolio.filter((item) => item.style === active)
-  }, [portfolio, active])
+    const byStyle =
+      activeStyle === ALL
+        ? portfolio
+        : portfolio.filter((item) => item.style === activeStyle)
+    const byArtist =
+      activeArtist === ALL
+        ? byStyle
+        : byStyle.filter((item) => item.artistId === activeArtist)
+    return byArtist
+  }, [portfolio, activeStyle, activeArtist])
 
   const openFrom = useCallback((item: PortfolioItem) => {
     setLightboxIndex(visible.findIndex((p) => p.id === item.id))
@@ -62,31 +77,79 @@ export default function PortfolioPage() {
       <section className="gallery">
       <h1 className="gallery__heading">Portfolio</h1>
       <p className="gallery__lede">
-        Browse recent pieces from our artists. Filter by style.
+        Browse recent pieces from our artists. Filter by style or artist.
       </p>
 
-      <div className="gallery__filters" role="group" aria-label="Filter by style">
-        {styleFilters.map((filter) => {
-          const label = filter === 'all' ? 'All' : STYLE_LABELS[filter]
-          const isActive = filter === active
-          const className = [
-            'gallery__filter',
-            isActive ? 'gallery__filter--active' : '',
-          ]
-            .filter(Boolean)
-            .join(' ')
-          return (
+      <div className="gallery__filters">
+        <fieldset className="gallery__filter-group">
+          <legend className="gallery__filter-legend">Style</legend>
+          <div className="gallery__filter-options" role="group" aria-label="Filter by style">
+            {styleFilters.map((filter) => {
+              const label = filter === ALL ? 'All' : STYLE_LABELS[filter]
+              const isActive = filter === activeStyle
+              const className = [
+                'gallery__filter',
+                isActive ? 'gallery__filter--active' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')
+              return (
+                <button
+                  key={filter}
+                  type="button"
+                  className={className}
+                  aria-pressed={isActive}
+                  onClick={() => setActiveStyle(filter)}
+                >
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+        </fieldset>
+
+        <fieldset className="gallery__filter-group">
+          <legend className="gallery__filter-legend">Artist</legend>
+          <div className="gallery__filter-options" role="group" aria-label="Filter by artist">
             <button
-              key={filter}
               type="button"
-              className={className}
-              aria-pressed={isActive}
-              onClick={() => setActive(filter)}
+              className={[
+                'gallery__filter',
+                activeArtist === ALL ? 'gallery__filter--active' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              aria-pressed={activeArtist === ALL}
+              onClick={() => setActiveArtist(ALL)}
             >
-              {label}
+              All
             </button>
-          )
-        })}
+            {artists.map((artist) => {
+              const isActive = artist.id === activeArtist
+              const className = [
+                'gallery__filter',
+                isActive ? 'gallery__filter--active' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')
+              return (
+                <button
+                  key={artist.id}
+                  type="button"
+                  className={className}
+                  aria-pressed={isActive}
+                  onClick={() => setActiveArtist(artist.id)}
+                >
+                  {artist.name}
+                </button>
+              )
+            })}
+          </div>
+        </fieldset>
+
+        <p className="gallery__count" aria-live="polite">
+          {visible.length} {visible.length === 1 ? 'piece' : 'pieces'}
+        </p>
       </div>
 
       {visible.length > 0 ? (
@@ -100,7 +163,7 @@ export default function PortfolioPage() {
           ))}
         </div>
       ) : (
-        <p className="gallery__empty">No pieces in this style yet.</p>
+        <p className="gallery__empty">No pieces match these filters.</p>
       )}
     </section>
 
