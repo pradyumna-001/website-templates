@@ -156,3 +156,101 @@ export const BOOKING_TYPES = {
 export type BookingLabel = (typeof BOOKING_TYPES)[keyof typeof BOOKING_TYPES]
 
 export const BOOKING_LABELS: Record<BookingType, string> = BOOKING_TYPES
+
+/* ------------------------------------------------------------------ *\
+  Type guards
+\* ------------------------------------------------------------------ */
+
+const STYLE_SET: ReadonlySet<string> = new Set(Object.keys(STYLES))
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0
+}
+
+function isArrayOf<T>(
+  value: unknown,
+  guard: (item: unknown) => item is T,
+): value is T[] {
+  return Array.isArray(value) && value.every(guard)
+}
+
+export function isStyleCategory(value: unknown): value is StyleCategory {
+  return typeof value === 'string' && STYLE_SET.has(value)
+}
+
+export function isBookingType(value: unknown): value is BookingType {
+  return value === 'tattoo' || value === 'piercing' || value === 'consultation'
+}
+
+/** Structural check that `value` at least looks like a portfolio item. */
+export function isPortfolioItem(value: unknown): value is PortfolioItem {
+  if (!isRecord(value)) return false
+  if (!isNonEmptyString(value.id)) return false
+  if (!isNonEmptyString(value.title)) return false
+  if (!isNonEmptyString(value.artistId)) return false
+  if (!isNonEmptyString(value.image)) return false
+  return isStyleCategory(value.style)
+}
+
+export function isArtist(value: unknown): value is Artist {
+  if (!isRecord(value)) return false
+  if (!isNonEmptyString(value.id)) return false
+  if (!isNonEmptyString(value.name)) return false
+  return Array.isArray(value.styles) && value.styles.every(isStyleCategory)
+}
+
+export function isService(value: unknown): value is Service {
+  if (!isRecord(value)) return false
+  if (!isNonEmptyString(value.id)) return false
+  if (!isNonEmptyString(value.name)) return false
+  if (typeof value.price !== 'number' && value.price !== 'On request') {
+    return false
+  }
+  return (
+    Array.isArray(value.bookingTypes) && value.bookingTypes.every(isBookingType)
+  )
+}
+
+export function isFaqItem(value: unknown): value is FaqItem {
+  if (!isRecord(value)) return false
+  return isNonEmptyString(value.q) && isNonEmptyString(value.a)
+}
+
+/**
+ * Structural guard for config loaded from `unknown` (e.g. a fetched JSON
+ * config file). Validates the required scalar fields and applies the item
+ * guards to every array, so a producing site can trust the result.
+ */
+export function isStudioConfig(value: unknown): value is StudioConfig {
+  if (!isRecord(value)) return false
+  if (!isNonEmptyString(value.studioName)) return false
+  if (!isNonEmptyString(value.whatsapp)) return false
+  if (!isArrayOf(value.artists, isArtist)) return false
+  if (!isArrayOf(value.portfolio, isPortfolioItem)) return false
+  if (!isArrayOf(value.services, isService)) return false
+  if (value.faq !== undefined && !isArrayOf(value.faq, isFaqItem)) return false
+  if (value.hours !== undefined && !isHoursRecord(value.hours)) return false
+  if (value.theme !== undefined && !isThemeTokens(value.theme)) return false
+  return true
+}
+
+function isHoursRecord(value: unknown): value is Record<string, string | null> {
+  if (!isRecord(value)) return false
+  return Object.values(value).every(
+    (entry) => entry === null || typeof entry === 'string',
+  )
+}
+
+function isThemeTokens(value: unknown): value is ThemeTokens {
+  if (!isRecord(value)) return false
+  return (
+    isNonEmptyString(value.primary) &&
+    isNonEmptyString(value.accent) &&
+    isNonEmptyString(value.background) &&
+    isNonEmptyString(value.foreground)
+  )
+}
