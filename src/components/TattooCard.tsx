@@ -77,7 +77,7 @@ export default function TattooCard({ item, onOpen }: TattooCardProps) {
       </div>
 
       <div className="tcard__body">
-        <h3 className="tcard__title">{item.title}</h3>
+        <h2 className="tcard__title">{item.title}</h2>
         <p className="tcard__byline">{artistName}</p>
         <p className="tcard__meta">
           <span className="tcard__style">{styleLabel}</span>

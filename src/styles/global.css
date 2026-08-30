@@ -7,6 +7,11 @@
  * are overridden at runtime from the studio config theme (see
  * `SiteConfigProvider`).
  *
+ * Contrast (GitHub issue #19 / Krug): the light-on-dark tokens are chosen to
+ * clear WCAG AA — `--color-fg` (~15:1) and `--color-muted` (~7:1) against
+ * `--color-bg`, accent/link on dark also above 4.5:1. Keep any token changes
+ * above those ratios so text stays legible on the dark surfaces.
+ *
  * Token groups:
  * - `--color-*`  : color palette (bg, surface, fg, muted, primary, accent, link)
  * - `--space-*`  : spacing scale
@@ -18,7 +23,7 @@
   --color-bg: #0c0c10;
   --color-surface: #16161d;
   --color-fg: #f4f1ea;
-  --color-muted: #9aa0a6;
+  --color-muted: #a7acb2;
   --color-primary: #ff6b3d;
   --color-accent: #ff6b3d;
   --color-link: #7cc5ff;
@@ -58,6 +63,35 @@ body {
   font-weight: var(--font-weight-normal);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Clear, consistent keyboard focus ring site-wide (Norman/Krug: never make a
+   user guess where focus is). Applied to every focusable element unless a
+   component already provides a stronger, specific ring. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* "Skip to content" link: visually hidden until keyboard-focused, then revealed
+   as the first element. Lets keyboard/AT users bypass the nav (a11y). */
+.skip-link {
+  position: absolute;
+  left: var(--space-2);
+  top: -100%;
+  z-index: 100;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-accent);
+  color: var(--color-fg);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+}
+
+.skip-link:focus-visible {
+  top: var(--space-2);
 }
 
 /* ------------------------------------------------------------------ *\

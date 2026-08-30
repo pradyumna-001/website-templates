@@ -29,7 +29,7 @@ export default function Navbar() {
   const waLink = `https://wa.me/${whatsapp}?text=${waMessage}`
 
   return (
-    <header className="navbar">
+    <header className="navbar" aria-label="Site header">
       <div className="navbar__bar">
         <div className="navbar__brand">
           <Link to="/" className="navbar__logo" onClick={closeMenu}>
