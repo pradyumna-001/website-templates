@@ -4,6 +4,8 @@ A config-driven starter kit for building client websites with **Vite + React + T
 
 Instead of creating a separate codebase for every client site, this template lets you **clone the repo once and edit a single config file**. Shared components render the whole site's content, structure, and navigation from that config, so each client site is just a clone plus a config edit.
 
+> **Delivering a client site?** See [DELIVERY.md](./DELIVERY.md) for the full clone-per-client rollout: copy → edit config → swap images → build → deploy → launch check → WhatsApp outreach.
+
 ## Getting started
 
 ### Clone and populate
