@@ -4,8 +4,8 @@ on:
   pull_request:
   push:
     branches:
-      - feature/scaffold-vite
       - main
+      - feature/**
 
 permissions:
   contents: read
