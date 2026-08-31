@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react'
 import { useSiteConfig } from './SiteConfigContext'
+import type { Service } from '../types/studio'
 
 /**
  * Typed schema.org JSON-LD object (Goldberg: typed data for SEO metadata).
@@ -20,7 +21,7 @@ interface SchemaOrgLocalBusiness {
     addressCountry: string
   }
   telephone: string
-  priceRange: string
+  priceRange?: string
   openingHours?: string[]
   sameAs?: string[]
   contactPoint: {
@@ -55,7 +56,7 @@ function openingHoursSpecs(
     }
     const [open, close] = value
       .split('-')
-      .map((part) => part.trim().replace(':', ''))
+      .map((part) => part.trim())
     if (!open || !close) continue
     specs.push(`${DAY_CODES[day]} ${open}-${close}`)
   }
@@ -71,8 +72,19 @@ function openingHoursSpecs(
  * to every route.
  */
 export default function SeoHead(): ReactNode {
-  const { studioName, tagline, city, whatsapp, instagram, hours } =
+  const { studioName, tagline, city, whatsapp, instagram, hours, services } =
     useSiteConfig()
+
+  // Derive the schema.org priceRange from the config's numeric services rather
+  // than hard-coding sample amounts, so each client's structured data reflects
+  // its own prices. Omit it entirely when nothing has a numeric price.
+  const numericPrices = services
+    .filter((s): s is Service & { price: number } => typeof s.price === 'number')
+    .map((s) => s.price)
+  const priceRange =
+    numericPrices.length > 0
+      ? `$${Math.min(...numericPrices).toLocaleString('en-US')} - $${Math.max(...numericPrices).toLocaleString('en-US')}`
+      : undefined
 
   const jsonLd: SchemaOrgLocalBusiness = {
     '@context': 'https://schema.org',
@@ -88,7 +100,7 @@ export default function SeoHead(): ReactNode {
       addressCountry: 'US',
     },
     telephone: `+${whatsapp}`,
-    priceRange: '$45 - $280',
+    priceRange,
     openingHours: openingHoursSpecs(hours),
     sameAs: instagram ? [`https://instagram.com/${instagram}`] : undefined,
     contactPoint: {

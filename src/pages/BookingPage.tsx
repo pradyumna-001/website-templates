@@ -366,9 +366,10 @@ export default function BookingPage() {
 
       {stage === 'editing' ? (
         <form className="booking__form" onSubmit={onSubmit} noValidate>
-          <Field label="Name" hint={fieldError('name')} invalid={!!fieldError('name')}>
+          <Field label="Name" controlId="booking-name" hint={fieldError('name')} invalid={!!fieldError('name')}>
             <input
               id="booking-name"
+              aria-describedby="booking-name-hint"
               className="booking__input"
               type="text"
               value={form.name}
@@ -377,9 +378,10 @@ export default function BookingPage() {
             />
           </Field>
 
-          <Field label="Style" hint={fieldError('style')} invalid={!!fieldError('style')}>
+          <Field label="Style" controlId="booking-style" hint={fieldError('style')} invalid={!!fieldError('style')}>
             <select
               id="booking-style"
+              aria-describedby="booking-style-hint"
               className="booking__input"
               value={form.style}
               onChange={(e) => updateField('style', e.target.value as StyleCategory | '')}
@@ -395,9 +397,10 @@ export default function BookingPage() {
             </select>
           </Field>
 
-          <Field label="Artist" hint={fieldError('artist')} invalid={!!fieldError('artist')}>
+          <Field label="Artist" controlId="booking-artist" hint={fieldError('artist')} invalid={!!fieldError('artist')}>
             <select
               id="booking-artist"
+              aria-describedby="booking-artist-hint"
               className="booking__input"
               value={form.artist}
               onChange={(e) => updateField('artist', e.target.value)}
@@ -411,9 +414,10 @@ export default function BookingPage() {
             </select>
           </Field>
 
-          <Field label="Size / placement" hint={fieldError('placement')} invalid={!!fieldError('placement')}>
+          <Field label="Size / placement" controlId="booking-placement" hint={fieldError('placement')} invalid={!!fieldError('placement')}>
             <select
               id="booking-placement"
+              aria-describedby="booking-placement-hint"
               className="booking__input"
               value={form.placement}
               onChange={(e) => updateField('placement', e.target.value)}
@@ -428,12 +432,14 @@ export default function BookingPage() {
 
           <Field
             label="Preferred date"
+            controlId="booking-date"
             hint={fieldError('date')}
             invalid={!!fieldError('date')}
             help="The earliest open day is today — past dates are not selectable."
           >
             <input
               id="booking-date"
+              aria-describedby="booking-date-hint"
               className="booking__input"
               type="date"
               min={minDate}
@@ -533,6 +539,8 @@ export default function BookingPage() {
 
 interface FieldProps {
   label: string
+  /** The control's own id, so <label htmlFor> and the hint id stay in sync. */
+  controlId: string
   hint?: string | null
   invalid: boolean
   help?: string
@@ -540,17 +548,16 @@ interface FieldProps {
 }
 
 /** A labelled row with its hint rendered beside the control, not at the end. */
-function Field({ label, hint, invalid, help, children }: FieldProps) {
-  const id = `field-${label.toLowerCase().replace(/[^a-z]+/g, '-')}`
+function Field({ label, controlId, hint, invalid, help, children }: FieldProps) {
   return (
     <div className="booking__field">
-      <label className="booking__label" htmlFor={id}>
+      <label className="booking__label" htmlFor={controlId}>
         {label}
       </label>
       {children}
       {help && !hint && <p className="booking__help">{help}</p>}
       {hint && (
-        <p className="booking__hint" id={`${id}-hint`} {...(invalid ? { role: 'alert' } : {})}>
+        <p className="booking__hint" id={`${controlId}-hint`} {...(invalid ? { role: 'alert' } : {})}>
           {hint}
         </p>
       )}

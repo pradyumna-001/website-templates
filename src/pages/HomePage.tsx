@@ -27,7 +27,8 @@ export default function HomePage() {
       {tagline ? <p className="hero__tagline">{tagline}</p> : null}
 
       <p className="hero__value">
-        Custom tattoo studio in {city}. Book your session online.
+        Custom tattoo studio{city ? ` in ${city}` : ''}. Book your session
+        online.
       </p>
 
       <div className="hero__cta-row">

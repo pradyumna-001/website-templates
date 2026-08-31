@@ -28,10 +28,16 @@ fi
 [ -n "$TARGET" ] || { echo "error: a target folder name is required" >&2; exit 1; }
 [ -e "$TARGET" ] && { echo "error: '$TARGET' already exists" >&2; exit 1; }
 
+# Snapshot top-level entries BEFORE creating the target folder: the `for item`
+# loop globs the working tree, and if it ran after `mkdir` it would pick up the
+# (now-existing) target and try to copy it into itself, which `cp` refuses and
+# `set -e` would turn into a hard failure.
+set -- ./* ./.[!.]*
+
 mkdir -p "$TARGET"
 
 # Copy everything except heavy/generated dirs and Version-Control state.
-for item in ./* ./.[!.]*; do
+for item do
   [ -e "$item" ] || continue
   base="${item#./}"
   case "$base" in
