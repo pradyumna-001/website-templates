@@ -1,0 +1,1565 @@
+/**
+ * Global design tokens.
+ *
+ * Dark-first: the palette default is a near-black background with light text so
+ * there is strong contrast and legibility out of the box, matching the
+ * accessibility-first intent of the reference design system. The accent tokens
+ * are overridden at runtime from the studio config theme (see
+ * `SiteConfigProvider`).
+ *
+ * Contrast (GitHub issue #19 / Krug): the light-on-dark tokens are chosen to
+ * clear WCAG AA — `--color-fg` (~15:1) and `--color-muted` (~7:1) against
+ * `--color-bg`, accent/link on dark also above 4.5:1. Keep any token changes
+ * above those ratios so text stays legible on the dark surfaces.
+ *
+ * Token groups:
+ * - `--color-*`  : color palette (bg, surface, fg, muted, primary, accent, link)
+ * - `--space-*`  : spacing scale
+ * - `--radius-*` : corner radii
+ * - `--font-*`   : typeface stacks and weights
+ */
+:root {
+  /* Color palette — dark first */
+  --color-bg: #0c0c10;
+  --color-surface: #16161d;
+  --color-fg: #f4f1ea;
+  --color-muted: #a7acb2;
+  --color-primary: #ff6b3d;
+  --color-accent: #ff6b3d;
+  --color-link: #7cc5ff;
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* Typography */
+  --font-sans: system-ui, Arial, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Clear, consistent keyboard focus ring site-wide (Norman/Krug: never make a
+   user guess where focus is). Applied to every focusable element unless a
+   component already provides a stronger, specific ring. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* "Skip to content" link: visually hidden until keyboard-focused, then revealed
+   as the first element. Lets keyboard/AT users bypass the nav (a11y). */
+.skip-link {
+  position: absolute;
+  left: var(--space-2);
+  top: -100%;
+  z-index: 100;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-accent);
+  color: var(--color-fg);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+}
+
+.skip-link:focus-visible {
+  top: var(--space-2);
+}
+
+/* ------------------------------------------------------------------ *\
+  Navbar
+\* ------------------------------------------------------------------ */
+
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  padding: var(--space-6) 0;
+  border-bottom: 1px solid var(--color-surface);
+}
+
+/* Groups the brand + mobile toggle so the toggle can sit beside the logo on
+   small screens while desktop keeps everything in one row. */
+.navbar__bar {
+  display: contents;
+  margin-right: auto;
+}
+
+.navbar__brand {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-right: auto;
+}
+
+.navbar__logo {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+  text-decoration: none;
+}
+
+.navbar__logo:hover {
+  color: var(--color-accent);
+}
+
+.navbar__tagline {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.navbar__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.navbar__link {
+  color: var(--color-fg);
+  font-weight: var(--font-weight-normal);
+  text-decoration: none;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+}
+
+.navbar__link:hover {
+  color: var(--color-accent);
+  background-color: var(--color-surface);
+}
+
+/* Active tab: distinct color AND heavier weight so "you are here" is
+   unmissable (two cues, not one subtle one). */
+.navbar__link--active {
+  color: var(--color-accent);
+  font-weight: var(--font-weight-bold);
+  background-color: var(--color-surface);
+}
+
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: auto;
+}
+
+.navbar__city {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+/* Mobile menu toggle: hidden on desktop, shown next to the logo on small
+   screens. Uses the English "Menu" label so the control needs no icon glyphs,
+   and speaks its state to assistive tech via aria-expanded. */
+.navbar__toggle {
+  display: none;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-surface);
+  background: none;
+  color: var(--color-fg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.navbar__toggle:hover,
+.navbar__toggle:focus-visible {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.navbar__toggle[aria-expanded='true']::after {
+  content: ' \2715';
+}
+
+/* ------------------------------------------------------------------ *\
+  CTA
+\* ------------------------------------------------------------------ */
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  line-height: 1.2;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.cta:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.cta--primary {
+  background-color: var(--color-primary);
+  color: var(--color-bg);
+}
+
+.cta--whatsapp {
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.home__cta-row {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: var(--space-6);
+}
+
+/* ------------------------------------------------------------------ *\
+  Portfolio gallery
+\* ------------------------------------------------------------------ */
+
+.gallery {
+  padding: var(--space-8) var(--space-4);
+  max-width: 68rem;
+  margin: 0 auto;
+}
+
+.gallery__heading {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--space-2);
+}
+
+.gallery__lede {
+  color: var(--color-muted);
+  margin: 0 0 var(--space-6);
+}
+
+.gallery__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  align-items: flex-start;
+  margin-bottom: var(--space-6);
+}
+
+.gallery__filter-group {
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.gallery__filter-legend {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  margin-bottom: var(--space-2);
+}
+
+.gallery__filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.gallery__count {
+  align-self: flex-end;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  margin: 0 0 0 auto;
+}
+
+.gallery__filter {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-surface);
+  background-color: var(--color-surface);
+  color: var(--color-fg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.gallery__filter:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.gallery__filter--active {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-bg);
+  font-weight: var(--font-weight-bold);
+}
+
+.gallery__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--space-6);
+}
+
+.gallery__empty {
+  color: var(--color-muted);
+}
+
+/* Booking form: a constrained, controlled booking flow. Labels sit above
+   their inputs (legible, tight coupling between each label and its control),
+   picks come from selects (poka-yoke), the date picker floors at today, and
+   validation messages appear inline beside a touched field (Norman: errors as
+   a conversation, not a wall). A highlighted hint reads as guidance, not a
+   hue-only cue. */
+.booking {
+  padding: var(--space-8) var(--space-4);
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+.booking__heading {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--space-2);
+}
+
+.booking__lede {
+  color: var(--color-muted);
+  margin: 0 0 var(--space-6);
+}
+
+.booking__steps {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0 0 var(--space-8);
+  padding: 0;
+}
+
+.booking__step {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.booking__step + .booking__step::before {
+  content: '\2192';
+  color: var(--color-muted);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.booking__step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background-color: var(--color-surface);
+  color: var(--color-muted);
+  font-weight: var(--font-weight-bold);
+  font-size: 0.75rem;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.booking__step--current {
+  color: var(--color-fg);
+  font-weight: var(--font-weight-bold);
+}
+
+.booking__step--current .booking__step-num {
+  background-color: var(--color-accent);
+  color: #fff;
+  border: 1px solid var(--color-accent);
+}
+
+.booking__success {
+  margin: 0 0 var(--space-6);
+  padding: var(--space-4);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  color: var(--color-fg);
+  background-color: var(--color-surface);
+  font-weight: var(--font-weight-medium);
+}
+
+.booking__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.booking__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.booking__label {
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.02em;
+}
+
+.booking__input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-surface);
+  background-color: var(--color-surface);
+  color: var(--color-fg);
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.4;
+  transition: border-color 0.15s ease;
+}
+
+.booking__input:hover {
+  border-color: var(--color-accent);
+}
+
+.booking__input:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.booking__help {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+}
+
+.booking__hint {
+  margin: 0;
+  color: var(--color-accent);
+  font-size: 0.8rem;
+}
+
+.booking__check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.booking__check input {
+  accent-color: var(--color-accent);
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.booking__check label {
+  font-size: 0.9rem;
+}
+
+.booking__submit {
+  align-self: flex-start;
+}
+
+.booking__submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.booking__review {
+  border: 1px solid var(--color-surface);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  padding: var(--space-8);
+}
+
+.booking__review-title {
+  margin: 0 0 var(--space-6);
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+}
+
+.booking__review-list {
+  margin: 0 0 var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.booking__review-list div {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.booking__review-list dt {
+  width: 9rem;
+  flex-shrink: 0;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.booking__review-list dd {
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+}
+
+.booking__review-note {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  margin: 0 0 var(--space-6);
+}
+
+.booking__review-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.booking__confirm {
+  margin: 0 0 var(--space-4);
+  padding: var(--space-4);
+  border-left: 3px solid var(--color-accent);
+  background-color: var(--color-surface);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--radius-sm);
+}
+
+.booking__send[aria-disabled='true'] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.booking__review-back {
+  background-color: transparent;
+  border: 1px solid var(--color-surface);
+  color: var(--color-fg);
+}
+
+.booking__review-back:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* TattooCard: an obvious, self-evidently clickable tile that opens a lightbox.
+   The whole card is the affordance (Norman, "The Design of Everyday Things"):
+   on hover/focus it lifts, picks up an accent ring, and a "View piece" pill
+   fades in over the image. A stretched, real <button> sits on top so keyboard
+   users and screen readers get a native, focusable lightbox trigger. */
+.tcard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface);
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* Focus-within covers the stretched button's :focus so the whole tile rings. */
+.tcard:hover,
+.tcard:focus-within {
+  transform: translateY(-3px);
+  border-color: var(--color-accent);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Stretched, accessible trigger covering the entire card content. */
+.tcard__open {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.tcard__open:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+/* "View piece" signifier pill, revealed on hover/focus of the tile. */
+.tcard__view {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+  font-weight: var(--font-weight-bold);
+  font-size: 0.8125rem;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+}
+
+.tcard:hover .tcard__view,
+.tcard:focus-within .tcard__view,
+.tcard:focus-visible .tcard__view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tcard__media {
+  position: relative;
+  overflow: hidden;
+}
+
+.tcard__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background-color: var(--color-bg);
+}
+
+/* Status signifiers as contrast-safe pills. */
+.tcard__badges {
+  position: absolute;
+  left: var(--space-3);
+  top: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  z-index: 1;
+}
+
+.tcard__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+}
+
+.tcard__badge--healed {
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.tcard__badge--featured {
+  background-color: var(--color-primary);
+  color: var(--color-bg);
+}
+
+.tcard__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+.tcard__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.tcard__byline {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-accent);
+  font-weight: var(--font-weight-medium);
+}
+
+.tcard__meta {
+  margin: var(--space-1) 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
+.tcard__style {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-fg);
+}
+
+/* ------------------------------------------------------------------ *\
+  Artists index
+\* ------------------------------------------------------------------ */
+
+.artists {
+  padding: var(--space-8) var(--space-4);
+  max-width: 68rem;
+  margin: 0 auto;
+}
+
+.artists__heading {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--space-2);
+}
+
+.artists__lede {
+  color: var(--color-muted);
+  margin: 0 0 var(--space-6);
+}
+
+.artists__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: var(--space-6);
+}
+
+.artists__empty {
+  color: var(--color-muted);
+}
+
+/* Artist card: a credibility tile (people want a good tattoo, so prove the
+   artists). Photo or monogram up top, then name, bio, style pills, and a clear
+   "View work" affordance that maps naturally to the artist's own portfolio
+   (Norman: mapping between an artist and their work). */
+.artist-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: transform 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.artist-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-accent);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.artist-card__photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background-color: var(--color-bg);
+}
+
+.artist-card__monogram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-bg)
+  );
+  color: var(--color-fg);
+  font-size: 3rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+}
+
+.artist-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  text-align: left;
+}
+
+.artist-card__name {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+}
+
+.artist-card__bio {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.artist-card__styles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.artist-card__style {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.artist-card__link {
+  margin-top: var(--space-2);
+  align-self: flex-start;
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+}
+
+.artist-card__link:hover,
+.artist-card__link:focus-visible {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------ *\
+  Pricing
+\* ------------------------------------------------------------------ */
+
+/* Honest, visible pricing (Krug: a reservoir of goodwill). One scannable
+   aligned list — Krug's third law — where the price column is right-aligned so
+   amounts compare at a glance. "On request" work is surfaced plainly, never
+   hidden behind a contact wall. */
+.pricing {
+  padding: var(--space-8) var(--space-4);
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.pricing__heading {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--space-2);
+}
+
+.pricing__lede {
+  color: var(--color-muted);
+  margin: 0 0 var(--space-8);
+}
+
+.pricing__list {
+  list-style: none;
+  margin: 0 0 var(--space-8);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--color-surface);
+}
+
+.pricing__row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-6);
+  justify-content: space-between;
+  padding: var(--space-6) 0;
+  border-bottom: 1px solid var(--color-surface);
+}
+
+.pricing__service {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.pricing__name {
+  font-size: 1.1rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+}
+
+.pricing__duration {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.pricing__description {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  max-width: 34rem;
+}
+
+.pricing__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: var(--space-1) 0 0;
+  padding: 0;
+}
+
+.pricing__tag {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-fg);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-medium);
+}
+
+/* Right-aligned price column so figures line up for quick comparison. */
+.pricing__price {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pricing__price--on-request {
+  color: var(--color-accent);
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.pricing__empty {
+  color: var(--color-muted);
+}
+
+.pricing__cta-row {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ------------------------------------------------------------------ *\
+  Home / Hero
+\* ------------------------------------------------------------------ */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+}
+
+.hero__title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.hero__tagline {
+  color: var(--color-accent);
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.hero__value {
+  color: var(--color-fg);
+  font-size: 1.125rem;
+  max-width: 42rem;
+  margin: 0;
+}
+
+.hero__cta-row {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: var(--space-4);
+}
+
+.hero__shortcuts {
+  display: flex;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: var(--space-4);
+}
+
+.hero__shortcut {
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  padding: var(--space-2) var(--space-3);
+}
+
+.hero__shortcut:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.hero__promise {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  max-width: 36rem;
+  margin: var(--space-4) 0 0;
+}
+
+/* ------------------------------------------------------------------ *\
+  Lightbox
+\* ------------------------------------------------------------------ */
+
+.lbx {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  animation: lbx-fade 0.2s ease;
+}
+
+@keyframes lbx-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.lbx__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(5, 5, 8, 0.92);
+  border: none;
+  cursor: pointer;
+}
+
+.lbx__dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 60rem;
+  width: 100%;
+  outline: none;
+}
+
+.lbx__close {
+  position: absolute;
+  top: -2.5rem;
+  right: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-surface);
+  background: var(--color-surface);
+  color: var(--color-muted);
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.lbx__close:hover,
+.lbx__close:focus-visible {
+  color: var(--color-fg);
+  border-color: var(--color-accent);
+}
+
+.lbx__nav {
+  width: 3rem;
+  height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--color-surface);
+  background: var(--color-surface);
+  color: var(--color-fg);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.lbx__nav:hover:not(:disabled),
+.lbx__nav:focus-visible {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+.lbx__nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.lbx__stage {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  align-items: center;
+  margin: 0;
+}
+
+.lbx__figure {
+  margin: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 45vh;
+  max-height: 65vh;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+}
+
+.lbx__loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lbx__loading::after {
+  content: '';
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 3px solid var(--color-surface);
+  border-top-color: var(--color-accent);
+  animation: lbx-spin 0.7s linear infinite;
+}
+
+@keyframes lbx-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.lbx__image {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: var(--radius-lg);
+}
+
+.lbx__panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.lbx__caption {
+  text-align: left;
+}
+
+.lbx__title {
+  margin: 0 0 var(--space-1);
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+}
+
+.lbx__byline {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.lbx__meta {
+  margin: var(--space-1) 0 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  display: flex;
+  gap: var(--space-2);
+}
+
+.lbx__cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+  margin-left: auto;
+  text-align: right;
+}
+
+.lbx__hint {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+}
+/* ------------------------------------------------------------------ *\
+  Contact
+\* ------------------------------------------------------------------ */
+
+/* Contact details are laid out up front and always visible (Krug: contact as a
+   reservoir of goodwill). A two-column block keeps the details on the left and
+   the FAQ accordion beside them on wider screens; it stacks on narrow ones. */
+.contact {
+  padding: var(--space-8) var(--space-4);
+  max-width: 68rem;
+  margin: 0 auto;
+}
+
+.contact__heading {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--space-2);
+}
+
+.contact__lede {
+  color: var(--color-muted);
+  margin: 0 0 var(--space-8);
+}
+
+.contact__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--space-8);
+  align-items: start;
+}
+
+.contact__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.contact__address {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.contact__address strong {
+  color: var(--color-fg);
+}
+
+.contact__subheading {
+  margin: 0 0 var(--space-3);
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+}
+
+.contact__hours-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact__hours-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-surface);
+}
+
+.contact__day {
+  color: var(--color-fg);
+  font-weight: var(--font-weight-medium);
+}
+
+.contact__time {
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.contact__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.contact__link {
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+}
+
+.contact__link:hover,
+.contact__link:focus-visible {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------ *\
+  FAQ accordion
+\* ------------------------------------------------------------------ */
+
+/* Questions answered as a conversation (Norman: useful, direct answers beat a
+   wall). Rows sit in a bordered list; the question button fills its row and a
+   chevron rotates open/closed so the collapsed state is self-explanatory. */
+.faq {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.faq__heading {
+  margin: 0 0 var(--space-1);
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+}
+
+.faq__row {
+  border-bottom: 1px solid var(--color-surface);
+}
+
+.faq__question {
+  margin: 0;
+}
+
+.faq__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-4) 0;
+  background: none;
+  border: none;
+  color: var(--color-fg);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  cursor: pointer;
+}
+
+.faq__toggle:hover,
+.faq__toggle:focus-visible {
+  color: var(--color-accent);
+}
+
+.faq__toggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.faq__chevron {
+  flex-shrink: 0;
+  color: var(--color-accent);
+  transition: transform 0.15s ease;
+}
+
+/* Point the chevron up when the row is open. */
+.faq__toggle[aria-expanded='true'] .faq__chevron {
+  transform: rotate(180deg);
+}
+
+.faq__answer {
+  color: var(--color-muted);
+  padding: 0 0 var(--space-4);
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------------------ *\
+  Footer
+\* ------------------------------------------------------------------ */
+
+/* Persistent residual nav (Krug) plus always-visible contact: the footer
+   appears beneath every page so contact and the utility links are never a
+   dead end. Muted but legible, with the residual links sharing the primary nav
+   routes so a visitor at the bottom of any page can keep moving. */
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-top: var(--space-12);
+  padding: var(--space-8) var(--space-4) var(--space-12);
+  border-top: 1px solid var(--color-surface);
+}
+
+.footer__col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.footer__name {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+}
+
+.footer__address {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.footer__social {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-2);
+}
+
+.footer__link {
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  font-size: 0.9rem;
+}
+
+.footer__link:hover,
+.footer__link:focus-visible {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.footer__whatsapp {
+  font-size: 0.9rem;
+  padding: var(--space-2) var(--space-3);
+}
+
+.footer__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.footer__nav-link {
+  color: var(--color-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.footer__nav-link:hover,
+.footer__nav-link:focus-visible {
+  color: var(--color-accent);
+}
+
+.footer__copyright {
+  width: 100%;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+/* ------------------------------------------------------------------ *\
+  Mobile
+\* ------------------------------------------------------------------ */
+
+/* Mobile-first collapse (Krug, "Don't Make Me Think": prioritize what someone
+   uses in a hurry). On narrow screens the navbar stacks — brand + a "Menu"
+   toggle on top, then the link list, then the always-visible WhatsApp booking
+   action so a primary action is never more than one tap away. */
+@media (max-width: 48rem) {
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding: var(--space-4) 0;
+  }
+
+  .navbar__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .navbar__brand {
+    margin-right: 0;
+  }
+
+  .navbar__toggle {
+    display: inline-flex;
+  }
+
+  .navbar__nav {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-1);
+  }
+
+  .navbar__nav--open {
+    display: flex;
+  }
+
+  .navbar__nav .navbar__link {
+    padding: var(--space-3);
+    border-radius: var(--radius-sm);
+  }
+
+  .navbar__actions {
+    margin-left: 0;
+  }
+
+  /* Keep the hero CTAs on the first screen: a tighter, vertically centered
+     hero so "Book a Tattoo" and WhatsApp are reachable on a ~375px viewport
+     without excessive scrolling, while the buttons stay large and tappable. */
+  .hero {
+    justify-content: center;
+    min-height: 70vh;
+    padding: var(--space-8) var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .hero__title {
+    font-size: clamp(2rem, 9vw, 2.75rem);
+  }
+
+  .hero__value {
+    font-size: 1rem;
+  }
+
+  .hero__cta-row {
+    gap: var(--space-3);
+  }
+
+  .hero__cta-row .cta {
+    flex: 1 1 auto;
+    min-width: min(100%, 15rem);
+  }
+}

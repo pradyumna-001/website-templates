@@ -1,9 +1,43 @@
 <!doctype html>
+<!--
+  Static per-client metadata.
+  index.html is shared across deployments, so the site-wide title, description,
+  Open Graph, and Twitter card values below reflect the sample studio
+  ("Iron & Ink Studio"). Edit these to match each client before deploying.
+-->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Website Templates</title>
+    <title>Iron & Ink Studio | Honest tattoos, done right</title>
+    <meta
+      name="description"
+      content="Iron & Ink Studio is a Portland, Oregon tattoo studio. Browse the portfolio, meet our artists, see honest pricing, and book your session online."
+    />
+
+    <!-- Open Graph (Facebook, LinkedIn, messaging previews) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content="Iron & Ink Studio" />
+    <meta
+      property="og:title"
+      content="Iron & Ink Studio | Honest tattoos, done right"
+    />
+    <meta
+      property="og:description"
+      content="Portland tattoo studio — custom work from award-winning artists. Book online or on WhatsApp."
+    />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta
+      name="twitter:title"
+      content="Iron & Ink Studio | Honest tattoos, done right"
+    />
+    <meta
+      name="twitter:description"
+      content="Portland tattoo studio — custom work from award-winning artists. Book online or on WhatsApp."
+    />
   </head>
   <body>
     <div id="root"></div>
