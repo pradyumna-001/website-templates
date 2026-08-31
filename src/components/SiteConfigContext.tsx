@@ -1,8 +1,8 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
-  type CSSProperties,
   type ReactNode,
 } from 'react'
 import {
@@ -35,17 +35,23 @@ export function SiteConfigProvider({
 
   const theme: ThemeTokens = config.theme ?? DEFAULT_THEME
 
+  // Apply the theme to the document root (not the wrapper div). Dark-surface
+  // tokens like body's background and color are read from `:root`, so the
+  // values must override the root custom properties rather than a descendant
+  // div, which the <body> (a parent) could never inherit from. Setting them on
+  // `document.documentElement` makes the whole page — including the body
+  // behind the app — respect the config's background/foreground.
+  useEffect(() => {
+    const root = document.documentElement
+    root.style.setProperty('--color-primary', theme.primary)
+    root.style.setProperty('--color-accent', theme.accent)
+    root.style.setProperty('--color-bg', theme.background)
+    root.style.setProperty('--color-fg', theme.foreground)
+  }, [theme])
+
   return (
     <SiteConfigContext.Provider value={value}>
-      <div
-        style={
-          {
-            '--color-primary': theme.primary,
-            '--color-accent': theme.accent,
-            minHeight: '100vh',
-          } as CSSProperties
-        }
-      >
+      <div style={{ minHeight: '100vh' }}>
         {children}
       </div>
     </SiteConfigContext.Provider>

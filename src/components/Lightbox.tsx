@@ -61,7 +61,13 @@ export default function Lightbox({
   const artist = item ? artists.find((a) => a.id === item.artistId) : undefined
   const artistName = artist?.name ?? 'Studio artist'
 
+  // Whether the viewer is actually open. The component is always mounted, so we
+  // gate every mount-only side effect on this: when closed, the body must NOT
+  // be scroll-locked or focus stolen.
+  const isOpen = item !== null
+
   useEffect(() => {
+    if (!isOpen) return
     const previous = document.activeElement as HTMLElement | null
     dialogRef.current?.focus()
 
@@ -70,7 +76,7 @@ export default function Lightbox({
       document.body.style.overflow = ''
       previous?.focus()
     }
-  }, [])
+  }, [isOpen])
 
   useEffect(() => {
     setLoading(true)
@@ -89,9 +95,10 @@ export default function Lightbox({
       }
     }
 
+    if (!isOpen) return
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [onClose, onNavigate])
+  }, [isOpen, onClose, onNavigate])
 
   if (item === null) return null
 

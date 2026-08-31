@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { STYLE_LABELS, type PortfolioItem, type StyleCategory } from '../types/studio'
 import { useSiteConfig } from '../components/SiteConfigContext'
@@ -23,19 +23,14 @@ import Lightbox from '../components/Lightbox'
 type StyleFilter = StyleCategory | 'all'
 type ArtistFilter = string | 'all'
 
-const styleFilters: StyleFilter[] = [
-  'all',
-  'traditional',
-  'neo-traditional',
-  'realism',
-  'blackwork',
-  'color',
-  'tribal',
-  'lettering',
-  'minimal',
-]
-
 const ALL = 'all'
+
+// Derived from the canonical STYLE_LABELS keys rather than a hand-written
+// copy, so the filter set can never drift from the StyleCategory union.
+const styleFilters: StyleFilter[] = [
+  ALL,
+  ...(Object.keys(STYLE_LABELS) as StyleCategory[]),
+]
 
 export default function PortfolioPage() {
   const { portfolio, artists } = useSiteConfig()
@@ -47,15 +42,20 @@ export default function PortfolioPage() {
    * "All" instead of showing an empty grid that looks like a bug.
    */
   const [searchParams] = useSearchParams()
-  const paramArtist = searchParams.get('artist')
-  const initialArtist: ArtistFilter =
-    paramArtist !== null && artists.some((a) => a.id === paramArtist)
-      ? paramArtist
-      : ALL
 
   const [activeStyle, setActiveStyle] = useState<StyleFilter>('all')
-  const [activeArtist, setActiveArtist] = useState<ArtistFilter>(initialArtist)
+  const [activeArtist, setActiveArtist] = useState<ArtistFilter>(ALL)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+
+  // Keep the artist filter in sync with `/portfolio?artist=<id>` on every
+  // navigation, not just the initial mount, so jumping between artist cards
+  // re-filters the grid. A missing/unknown id falls back to "All".
+  useEffect(() => {
+    const param = searchParams.get('artist')
+    const next: ArtistFilter =
+      param !== null && artists.some((a) => a.id === param) ? param : ALL
+    setActiveArtist(next)
+  }, [searchParams, artists])
 
   const visible = useMemo(() => {
     const byStyle =
